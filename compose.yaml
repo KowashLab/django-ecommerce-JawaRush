@@ -1,31 +1,38 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:15
     environment:
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: password
-        POSTGRES_DB: mydb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: mydb
     ports:
-    - "5434:5432"
+      - "5434:5432"
     volumes:
-    - db_data:/var/lib/postgresql/data
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     build: .
-    command: python manage.py runserver 0.0.0:8000
+    command: >
+      sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     volumes:
-    - .:/app
-
+      - .:/app
     ports:
-    - "8000:8000"
-
+      - "8000:8000"
     environment:
-      - DATABASE_URL=postgres://postgres:password@db:5432/mydb
-
+      DB_ENGINE: django.db.backends.postgresql
+      DB_NAME: mydb
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_HOST: db
+      DB_PORT: 5432
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
-    db_data:
+  db_data:
