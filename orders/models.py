@@ -9,17 +9,19 @@ User = get_user_model()
 class Order(models.Model):
 
     class Status(models.TextChoices):
-        PENDING = 'penging','Ожидает'
-        PAID = 'paid','Оплачен'
-        SHIPPED = 'shipped','Отправлен'
-        DELIVERED = 'delivered','Доставлен'
-        CANCELLED = 'cancelled','Отменен'
+        PENDING = 'pending', 'Ожидает'
+        PAID = 'paid', 'Оплачен'
+        SHIPPED = 'shipped', 'Отправлен'
+        DELIVERED = 'delivered', 'Доставлен'
+        CANCELLED = 'cancelled', 'Отменен'
 
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='orders',
-        verbose_name='Пользователь'
+        verbose_name='Пользователь',
+        null=True,
+        blank=True,
     )
     status = models.CharField(
         max_length=20,
@@ -32,9 +34,9 @@ class Order(models.Model):
         decimal_places=2,
         verbose_name='Итоговая сумма'
     )
-    shipping_address = models.TextField(verbose_name='Адрес доставки')
-    full_name = models.CharField(max_length=200, verbose_name='Получаетль')
-    phone = models.CharField(max_length=20, verbose_name='Телефон'),
+    shipping_address = models.TextField(verbose_name='Адрес доставки', blank=True, default='')
+    full_name = models.CharField(max_length=200, verbose_name='Получатель', blank=True, default='')
+    phone = models.CharField(max_length=20, verbose_name='Телефон', blank=True, default='')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -44,7 +46,9 @@ class Order(models.Model):
         ordering = ['-created_at']
 
     def __str__(self):
-        return f'{self.pk} - {self.user.username} '
+        if self.user:
+            return f'{self.pk} - {self.user.username}'
+        return f'{self.pk} - Anonymous'
 
 
 class OrderItem(models.Model):

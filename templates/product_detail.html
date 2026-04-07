@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} | Hop & Barley</title>
+
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+<!-- Header -->
+<header>
+    <div class="header-container">
+        <a href="{% url 'home' %}" class="header__logo">
+            <img src="{% static 'img/logo.svg' %}" alt="Hop & Barley Logo">
+            <p class="logo-text">Hop & Barley</p>
+        </a>
+        <nav class="header__nav">
+            <ul>
+                <li><a href="{% url 'home' %}">Products</a></li>
+                <li><a href="#">Guides & Recipes</a></li>
+                <li><a href="#">Community</a></li>
+                <li><a href="#">Resources</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="header__auth-buttons" id="auth-guest">
+            <a href="#" class="button button--secondary">Sign in</a>
+            <a href="#" class="button button--primary">Register</a>
+        </div>
+        <div class="header__user-actions" id="auth-user">
+            <a href="#" class="user-icon" aria-label="My Account">
+                <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
+            </a>
+            <a href="#" class="cart-icon" aria-label="Shopping Cart">
+                <img src="{% static 'img/icons/Shopping_bag.svg' %}" alt="Shopping Cart">
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="page-product">
+    <div class="container">
+        <!-- Product Info Section -->
+        <section class="product-details-section">
+            <div class="product-image-container">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                {% else %}
+                <img src="{% static 'img/products/placeholder.jpg' %}" alt="{{ product.name }}" class="product-image">
+                {% endif %}
+            </div>
+            <div class="product-info-column">
+                <div class="product-title-price">
+                    <h1 class="product-name">{{ product.name }}</h1>
+                    <div class="price-section">
+                        <span class="price-tag">per 100g</span>
+                        <p class="product-price">${{ product.price }}</p>
+                    </div>
+                </div>
+                <div class="product-description">
+                    {{ product.description|linebreaksbr }}
+                </div>
+                <div class="cart-controls">
+                    <form method="post" action="{% url 'add_to_cart' product.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button button--primary add-to-cart-button" {% if product.stock == 0 %}disabled{% endif %}>
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span>{% if product.stock == 0 %}Out of Stock{% else %}Add to Cart{% endif %}</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reviews Section -->
+        <section class="reviews-section">
+            <h2 class="reviews-title">Latest reviews</h2>
+            <div class="reviews-grid">
+                {% for review in product.reviews.all %}
+                <div class="review-card">
+                    <div class="review-rating">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= review.rating %}
+                            <i class="fa-solid fa-star"></i>
+                            {% else %}
+                            <i class="fa-regular fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="review-body">
+                        <p class="review-text">{{ review.comment }}</p>
+                    </div>
+                    <div class="review-author">
+                        <span class="author-name">{{ review.user.username }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <p>No reviews yet.</p>
+                {% endfor %}
+            </div>
+        </section>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer>
+    <img src="{% static 'img/background/image-footer.svg' %}" alt="Hop & Barley Hops Logo" class="footer__hops-logo">
+    <nav class="footer__nav">
+        <ul>
+            <li><a href="#">Contact</a></li>
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Community</a></li>
+            <li><a href="#">Resources</a></li>
+            <li><a href="#">License</a></li>
+        </ul>
+    </nav>
+    <p class="footer__copyright">© Hop & Barley 2025. All rights reserved</p>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

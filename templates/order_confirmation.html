@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Confirmed | Hop & Barley</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+<header>
+  <div class="header-container">
+    <a href="{% url 'home' %}" class="header__logo">
+      <img src="{% static 'img/logo.svg' %}" alt="Hop & Barley Logo">
+      <p class="logo-text">Hop & Barley</p>
+    </a>
+    <nav class="header__nav">
+      <ul>
+        <li><a href="{% url 'home' %}">Products</a></li>
+        <li><a href="#">Guides & Recipes</a></li>
+        <li><a href="#">Community</a></li>
+        <li><a href="#">Resources</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main class="cart-page-wrapper">
+  <div class="cart-container">
+    <h1 class="cart-title">Order Confirmed</h1>
+    <p>Your order <strong>#{{ order.pk }}</strong> has been placed successfully.</p>
+    <p>Status: <strong>{{ order.get_status_display }}</strong></p>
+    <p>Total: <strong>${{ order.total_price }}</strong></p>
+
+    <h2 style="margin-top: 2rem;">Items</h2>
+    {% for item in order.items.all %}
+    <p>{{ item.product.name }} × {{ item.quantity }} — ${{ item.price }}</p>
+    {% endfor %}
+
+    <a href="{% url 'home' %}" class="button button--primary" style="margin-top: 2rem; display: inline-block;">Continue Shopping</a>
+  </div>
+</main>
+
+<footer>
+  <img src="{% static 'img/background/image-footer.svg' %}" alt="Hop & Barley Hops Logo" class="footer__hops-logo">
+  <nav class="footer__nav">
+    <ul>
+      <li><a href="#">Contact</a></li>
+      <li><a href="#">FAQ</a></li>
+      <li><a href="#">Community</a></li>
+      <li><a href="#">Resources</a></li>
+      <li><a href="#">License</a></li>
+    </ul>
+  </nav>
+  <p class="footer__copyright">© Hop & Barley 2025. All rights reserved</p>
+</footer>
+<script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
