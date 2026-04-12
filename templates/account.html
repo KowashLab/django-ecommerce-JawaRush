@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -12,38 +13,42 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <!-- Main CSS -->
-  <link rel="stylesheet" href="../static/css/main.css">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body>
 <!-- Header -->
 <header>
   <div class="header-container">
-    <a href="home.html" class="header__logo">
-      <img src="../static/img/logo.svg" alt="Hop & Barley Logo">
+    <a href="{% url 'home' %}" class="header__logo">
+      <img src="{% static 'img/logo.svg' %}" alt="Hop & Barley Logo">
       <p class="logo-text">Hop & Barley</p>
     </a>
     <nav class="header__nav">
       <ul>
-        <li><a href="home.html">Products</a></li>
-        <li><a href="guides-recipes.html">Guides & Recipes</a></li>
+        <li><a href="{% url 'home' %}">Products</a></li>
+        <li><a href="#">Guides & Recipes</a></li>
         <li><a href="#">Community</a></li>
         <li><a href="#">Resources</a></li>
         <li><a href="#">Contact</a></li>
       </ul>
     </nav>
+    {% if user.is_authenticated %}
+    <div class="header__user-actions">
+      <span class="header__username">{{ user.username }}</span>
+      <form method="post" action="{% url 'logout' %}" style="display:inline">{% csrf_token %}<button type="submit" class="button button--secondary button--small">Logout</button></form>
+        <a href="{% url 'account' %}" class="user-icon" aria-label="My Account">
+        <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
+      </a>
+      <a href="{% url 'cart_detail' %}" class="cart-icon" aria-label="Shopping Cart">
+        <img src="{% static 'img/icons/Shopping_bag.svg' %}" alt="Shopping Cart">
+      </a>
+    </div>
+    {% else %}
     <div class="header__auth-buttons" id="auth-guest">
-      <a href="login.html" class="button button--secondary">Sign in</a>
-      <a href="register.html" class="button button--primary">Register</a>
+        <a href="{% url 'login' %}" class="button button--secondary">Sign in</a>
+      <a href="{% url 'register' %}" class="button button--primary">Register</a>
     </div>
-    <div class="header__user-actions" id="auth-user">
-      <a href="account.html" class="user-icon" aria-label="My Account">
-        <img src="../static/img/icons/User_alt.svg" alt="User Account">
-      </a>
-      <a href="cart.html" class="cart-icon" aria-label="Shopping Cart">
-        <img src="../static/img/icons/Shopping_bag.svg" alt="Shopping Cart">
-      </a>
-
-    </div>
+    {% endif %}
   </div>
 </header>
 
@@ -60,6 +65,16 @@
     <div class="tab-content">
       <!-- Order History Panel -->
       <div id="order-history" class="tab-pane active">
+        <!-- Status Filter -->
+        <form method="get" action="{% url 'account' %}" style="margin-bottom: 1rem;">
+          <select name="status" onchange="this.form.submit()" class="Input" style="max-width: 200px;">
+            <option value="">All statuses</option>
+            {% for value, label in statuses %}
+            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </form>
+
         <div class="order-history-table">
           <!-- Table Header -->
           <div class="order-table-header">
@@ -69,105 +84,24 @@
           </div>
           <!-- Table Body -->
           <div class="order-table-body">
-            <!-- Example Row 1 -->
+            {% for order in orders %}
             <div class="order-table-row">
               <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
+                <span class="order-id">#{{ order.pk }}</span>
+                <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
               </div>
               <div class="order-table-cell">
-                <span class="order-status">Pending</span>
+                <span class="order-status">{{ order.get_status_display }}</span>
               </div>
               <div class="order-table-cell">
-                <span class="order-total">$100.00</span>
+                <span class="order-total">${{ order.total_price }}</span>
               </div>
             </div>
-            <!-- Example Row 2 -->
+            {% empty %}
             <div class="order-table-row">
-              <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-status">Pending</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-total">$90.00</span>
-              </div>
+              <div class="order-table-cell" style="grid-column: 1 / -1; text-align: center;">No orders yet.</div>
             </div>
-            <!-- ... add more rows as needed ... -->
-            <div class="order-table-row">
-              <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-status">Confirmed</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-total">$140.00</span>
-              </div>
-            </div>
-            <div class="order-table-row">
-              <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-status">Delivered</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-total">$120.00</span>
-              </div>
-            </div>
-            <div class="order-table-row">
-              <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-status">Shipped</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-total">$120.00</span>
-              </div>
-            </div>
-            <div class="order-table-row">
-              <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-status">Shipped</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-total">$120.00</span>
-              </div>
-            </div>
-            <div class="order-table-row">
-              <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-status">Shipped</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-total">$120.00</span>
-              </div>
-            </div>
-            <div class="order-table-row">
-              <div class="order-table-cell">
-                <span class="order-id">#123232122033</span>
-                <span class="order-date">7 Mar 2025</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-status">Shipped</span>
-              </div>
-              <div class="order-table-cell">
-                <span class="order-total">$120.00</span>
-              </div>
-            </div>
+            {% endfor %}
           </div>
         </div>
         <!-- Pagination (simplified) -->
@@ -203,7 +137,7 @@
               <textarea id="acc-address" name="address" class="Textarea" placeholder="Value" rows="3" required></textarea>
             </div>
             <button type="submit" class="button button--primary button--full-width">Save</button>
-            <a href="#" class="button button--secondary button--full-width" id="logout-button">Logout</a>
+            <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="button button--secondary button--full-width" id="logout-button">Logout</button></form>
           </form>
         </div>
       </div>
@@ -214,7 +148,7 @@
 
 <!-- Footer -->
 <footer>
-  <img src="../static/img/background/image-footer.svg" alt="Hop & Barley Hops Logo" class="footer__hops-logo">
+  <img src="{% static 'img/background/image-footer.svg' %}" alt="Hop & Barley Hops Logo" class="footer__hops-logo">
   <nav class="footer__nav">
     <ul>
       <li><a href="#">Contact</a></li>
@@ -228,6 +162,6 @@
 </footer>
 
 <!-- JS -->
-<script src="../static/js/main.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

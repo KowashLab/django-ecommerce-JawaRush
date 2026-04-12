@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Confirmed | Hop & Barley</title>
+  <title>Payment Successful | Hop & Barley</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -32,24 +32,12 @@
 
 <main class="cart-page-wrapper">
   <div class="cart-container">
-    <h1 class="cart-title">Order Confirmed</h1>
-    <p>Your order <strong>#{{ order.pk }}</strong> has been placed successfully.</p>
+    <h1 class="cart-title">Payment Successful</h1>
+    <p>Order <strong>#{{ order.pk }}</strong> has been paid.</p>
     <p>Status: <strong>{{ order.get_status_display }}</strong></p>
     <p>Total: <strong>${{ order.total_price }}</strong></p>
 
-    <h2 style="margin-top: 2rem;">Items</h2>
-    {% for item in order.items.all %}
-    <p>{{ item.product.name }} × {{ item.quantity }} — ${{ item.price }}</p>
-    {% endfor %}
-
-    {% if order.status == 'pending' %}
-    <form method="post" action="{% url 'process_payment' order.pk %}" style="margin-top: 2rem;">
-      {% csrf_token %}
-      <button type="submit" class="button button--primary">Pay now</button>
-    </form>
-    {% endif %}
-
-    <a href="{% url 'home' %}" class="button button--secondary" style="margin-top: 1rem; display: inline-block;">Continue Shopping</a>
+    <a href="{% url 'home' %}" class="button button--primary" style="margin-top: 2rem; display: inline-block;">Continue Shopping</a>
   </div>
 </main>
 

@@ -159,6 +159,7 @@ def checkout(request):
                     full_name=form.cleaned_data['full_name'],
                     phone=form.cleaned_data['phone'],
                     shipping_address=form.cleaned_data['shipping_address'],
+                    payment_method=form.cleaned_data['payment_method'],
                     total_price=Decimal('0'),
                 )
 
@@ -201,3 +202,19 @@ def checkout(request):
         'cart_items': cart_items,
         'cart_total': cart_total,
     })
+
+
+@require_POST
+def process_payment(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    if request.user.is_authenticated:
+        if order.user != request.user:
+            return redirect('home')
+    else:
+        if order.user is not None:
+            return redirect('home')
+    if order.status != Order.Status.PENDING:
+        return redirect('home')
+    order.status = Order.Status.PAID
+    order.save()
+    return render(request, 'payment_success.html', {'order': order})

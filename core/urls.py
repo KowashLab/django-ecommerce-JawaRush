@@ -20,7 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from products.views import HomeView, ProductDetailView
-from orders.views import cart_detail, add_to_cart, remove_from_cart, update_cart, checkout
+from orders.views import cart_detail, add_to_cart, remove_from_cart, update_cart, checkout, process_payment
+from users.views import register_view, login_view, logout_view, account_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,6 +32,11 @@ urlpatterns = [
     path('cart/remove/<int:product_id>/', remove_from_cart, name='remove_from_cart'),
     path('cart/update/<int:product_id>/', update_cart, name='update_cart'),
     path('checkout/', checkout, name='checkout'),
+    path('payment/<int:order_id>/', process_payment, name='process_payment'),
+    path('register/', register_view, name='register'),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
+    path('account/', account_view, name='account'),
 ]
 
 if settings.DEBUG:

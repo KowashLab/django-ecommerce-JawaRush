@@ -15,6 +15,10 @@ class Order(models.Model):
         DELIVERED = 'delivered', 'Доставлен'
         CANCELLED = 'cancelled', 'Отменен'
 
+    class PaymentMethod(models.TextChoices):
+        CARD = 'card', 'Карта'
+        CASH = 'cash', 'Наличные'
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -37,6 +41,12 @@ class Order(models.Model):
     shipping_address = models.TextField(verbose_name='Адрес доставки', blank=True, default='')
     full_name = models.CharField(max_length=200, verbose_name='Получатель', blank=True, default='')
     phone = models.CharField(max_length=20, verbose_name='Телефон', blank=True, default='')
+    payment_method = models.CharField(
+        max_length=10,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.CARD,
+        verbose_name='Способ оплаты',
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

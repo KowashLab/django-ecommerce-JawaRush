@@ -29,10 +29,17 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
+JAZZMIN_SETTINGS = {
+    'site_title': 'Hop & Barley Admin',
+    'site_header': 'Hop & Barley',
+    'welcome_sign': 'Welcome to Hop & Barley Admin',
+}
+
 
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

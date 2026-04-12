@@ -32,18 +32,23 @@
                 <li><a href="#">Contact</a></li>
             </ul>
         </nav>
-        <div class="header__auth-buttons" id="auth-guest">
-            <a href="#" class="button button--secondary">Sign in</a>
-            <a href="#" class="button button--primary">Register</a>
-        </div>
-        <div class="header__user-actions" id="auth-user">
-            <a href="#" class="user-icon" aria-label="My Account">
+        {% if user.is_authenticated %}
+        <div class="header__user-actions">
+          <span class="header__username">{{ user.username }}</span>
+          <form method="post" action="{% url 'logout' %}" style="display:inline">{% csrf_token %}<button type="submit" class="button button--secondary button--small">Logout</button></form>
+            <a href="{% url 'account' %}" class="user-icon" aria-label="My Account">
                 <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
             </a>
             <a href="{% url 'cart_detail' %}" class="cart-icon" aria-label="Shopping Cart">
                 <img src="{% static 'img/icons/Shopping_bag.svg' %}" alt="Shopping Cart">
             </a>
         </div>
+        {% else %}
+        <div class="header__auth-buttons" id="auth-guest">
+            <a href="{% url 'login' %}" class="button button--secondary">Sign in</a>
+            <a href="{% url 'register' %}" class="button button--primary">Register</a>
+        </div>
+        {% endif %}
     </div>
 </header>
 
@@ -85,6 +90,16 @@
                     {% if form.shipping_address.errors %}
                     <ul class="form-errors">
                         {% for error in form.shipping_address.errors %}<li>{{ error }}</li>{% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+
+                <div class="checkout-form-group">
+                    <label>Payment method</label>
+                    {{ form.payment_method }}
+                    {% if form.payment_method.errors %}
+                    <ul class="form-errors">
+                        {% for error in form.payment_method.errors %}<li>{{ error }}</li>{% endfor %}
                     </ul>
                     {% endif %}
                 </div>

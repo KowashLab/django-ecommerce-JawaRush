@@ -27,30 +27,32 @@
         </a>
         <nav class="header__nav">
             <ul>
-                <li><a href="home.html">Products</a></li>
-                <li><a href="guides-recipes.html">Guides & Recipes</a></li>
+                <li><a href="{% url 'home' %}">Products</a></li>
+                <li><a href="#">Guides & Recipes</a></li>
                 <li><a href="#">Community</a></li>
                 <li><a href="#">Resources</a></li>
                 <li><a href="#">Contact</a></li>
             </ul>
         </nav>
 
-        <!-- Block for unauthorized user -->
-        <div class="header__auth-buttons" id="auth-guest">
-            <a href="login.html" class="button button--secondary">Sign in</a>
-            <a href="register.html" class="button button--primary">Register</a>
-        </div>
-
-        <!-- Block for authorized user -->
-        <div class="header__user-actions" id="auth-user">
-            <a href="account.html" class="user-icon" aria-label="My Account">
+        {% if user.is_authenticated %}
+        <div class="header__user-actions">
+          <span class="header__username">{{ user.username }}</span>
+          <form method="post" action="{% url 'logout' %}" style="display:inline">{% csrf_token %}<button type="submit" class="button button--secondary button--small">Logout</button></form>
+            <a href="{% url 'account' %}" class="user-icon" aria-label="My Account">
                 <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
             </a>
-            <a href="cart.html" class="cart-icon" aria-label="Shopping Cart">
+            <a href="{% url 'cart_detail' %}" class="cart-icon" aria-label="Shopping Cart">
                 <img src="{% static 'img/icons/Shopping_bag.svg' %}" alt="Shopping Cart">
             </a>
 
-        </div>
+                </div>
+        {% else %}
+        <div class="header__auth-buttons" id="auth-guest">
+            <a href="{% url 'login' %}" class="button button--secondary">Sign in</a>
+            <a href="{% url 'register' %}" class="button button--primary">Register</a>
+                </div>
+        {% endif %}
     </div>
 </header>
 
@@ -61,7 +63,7 @@
         <div class="hero-banner__overlay"></div>
     </section>
 
-    <div class="container main-content-grid">
+    <form method="get" action="{% url 'home' %}" class="container main-content-grid">
         <aside class="sidebar filter-menu">
             <div class="sidebar__section">
                 <h3 class="section-title">Keywords</h3>
@@ -72,41 +74,33 @@
             <div class="sidebar__section">
                 <h3 class="section-title">Product Type</h3>
                 <div class="checkbox-group">
-                    <label class="checkbox-container">Hops
-                        <input type="checkbox" data-keyword="Hops">
+                    {% for cat in categories %}
+                    <label class="checkbox-container">{{ cat.name }}
+                        <input type="checkbox" name="category" value="{{ cat.slug }}"
+                               {% if cat.slug in selected_categories %}checked{% endif %}>
                         <span class="checkmark"></span>
                     </label>
-                    <label class="checkbox-container">Malts
-                        <input type="checkbox" data-keyword="Malts">
-                        <span class="checkmark"></span>
-                    </label>
-                    <label class="checkbox-container">Yeast
-                        <input type="checkbox" data-keyword="Yeast">
-                        <span class="checkmark"></span>
-                    </label>
-                    <label class="checkbox-container">Adjuncts
-                        <input type="checkbox" data-keyword="Adjuncts">
-                        <span class="checkmark"></span>
-                    </label>
+                    {% endfor %}
                 </div>
             </div>
+
+            <button type="submit" class="button button--primary button--full-width">Apply Filters</button>
         </aside>
 
         <section class="products-area product-grid-section">
             <div class="search-sort-bar">
                 <div class="search-input-wrapper">
-                    <input type="text" placeholder="Search" class="search-input">
-                    <button class="search-button" aria-label="Search">
+                    <input type="text" name="q" value="{{ current_q }}" placeholder="Search" class="search-input">
+                    <button type="submit" class="search-button" aria-label="Search">
                         <i class="fa-solid fa-magnifying-glass"></i>
                     </button>
                 </div>
                 <div class="sort-options">
-                    <button class="sort-button active-sort">
+                    <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=newest" class="sort-button{% if current_sort == 'newest' %} active-sort{% endif %}">
                         <span>New</span>
-                    </button>
-                    <button class="sort-button">Price ascending</button>
-                    <button class="sort-button">Price descending</button>
-                    <button class="sort-button">Rating</button>
+                    </a>
+                    <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_asc" class="sort-button{% if current_sort == 'price_asc' %} active-sort{% endif %}">Price ascending</a>
+                    <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_desc" class="sort-button{% if current_sort == 'price_desc' %} active-sort{% endif %}">Price descending</a>
                 </div>
             </div>
 
@@ -131,25 +125,37 @@
                 {% endfor %}
             </div>
 
+            {% if is_paginated %}
             <div class="pagination">
-                <a href="#" class="pagination__link pagination__link--prev">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--prev">
                     <i class="fa-solid fa-arrow-left"></i>
                     <span>Previous</span>
                 </a>
+                {% endif %}
                 <div class="pagination-list">
-                    <a href="#" class="pagination__link active">1</a>
-                    <a href="#" class="pagination__link">2</a>
-                    <a href="#" class="pagination__link">3</a>
-                    <span class="pagination__dots">...</span>
-                    <a href="#" class="pagination__link">20</a>
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link active">{{ num }}</a>
+                        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                        <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
+                        {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                        <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
+                        {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+                        <span class="pagination__dots">...</span>
+                        {% endif %}
+                    {% endfor %}
                 </div>
-                <a href="#" class="pagination__link pagination__link--next">
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--next">
                     <span>Next</span>
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
+                {% endif %}
             </div>
+            {% endif %}
         </section>
-    </div>
+    </form>
 </main>
 
 <!-- Footer -->
