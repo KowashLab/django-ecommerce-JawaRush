@@ -1,10 +1,6 @@
 from django import forms
 
-
-PAYMENT_CHOICES = [
-    ('card', 'Card'),
-    ('cash', 'Cash'),
-]
+from .models import Order
 
 
 class CheckoutForm(forms.Form):
@@ -23,7 +19,7 @@ class CheckoutForm(forms.Form):
         widget=forms.Textarea(attrs={'class': 'Textarea', 'placeholder': 'Value', 'rows': 3}),
     )
     payment_method = forms.ChoiceField(
-        choices=PAYMENT_CHOICES,
+        choices=Order.PaymentMethod.choices,
         initial='card',
         label='Payment method',
         widget=forms.RadioSelect,

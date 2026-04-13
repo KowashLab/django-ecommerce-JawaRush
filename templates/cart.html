@@ -108,10 +108,7 @@
         <p>Total</p>
         <p id="cart-total-price">${{ cart_total }}</p>
       </div>
-      <form method="post" action="{% url 'checkout' %}">
-        {% csrf_token %}
-        <button type="submit" class="button button--primary button--checkout">Proceed to Checkout</button>
-      </form>
+      <a href="{% url 'checkout' %}" class="button button--primary button--checkout">Proceed to Checkout</a>
     </div>
     {% endif %}
   </div>

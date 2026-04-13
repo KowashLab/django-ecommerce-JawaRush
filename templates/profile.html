@@ -4,7 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Confirmed | Hop & Barley</title>
+  <title>Edit Profile | Hop & Barley</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,6 +13,7 @@
   <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body>
+<!-- Header -->
 <header>
   <div class="header-container">
     <a href="{% url 'home' %}" class="header__logo">
@@ -47,31 +49,50 @@
   </div>
 </header>
 
-<main class="cart-page-wrapper">
-  <div class="cart-container">
-    <h1 class="cart-title">Order Confirmed</h1>
-    <p>Your order <strong>#{{ order.pk }}</strong> has been placed successfully.</p>
-    <p>Status: <strong>{{ order.get_status_display }}</strong></p>
-    <p>Total: <strong>${{ order.total_price }}</strong></p>
+<!-- Main Content -->
+<main class="auth-page-wrapper">
+  <div class="auth-background">
+    <img src="{% static 'img/background/pattern.jpg' %}" alt="Background pattern">
+  </div>
+  <div class="auth-form-container">
+    <div class="auth-container auth-container--login">
+      <div class="Legend">
+        <h1 class="auth-title">Edit Profile</h1>
+      </div>
 
-    <h2 style="margin-top: 2rem;">Items</h2>
-    {% for item in order.items.all %}
-    <p>{{ item.product.name }} × {{ item.quantity }} — ${{ item.price }}</p>
-    {% empty %}
-    <p>No items.</p>
-    {% endfor %}
+      <form class="auth-form" method="post">
+        {% csrf_token %}
 
-    {% if order.status == 'pending' %}
-    <form method="post" action="{% url 'process_payment' order.pk %}" style="margin-top: 2rem;">
-      {% csrf_token %}
-      <button type="submit" class="button button--primary">Pay now</button>
-    </form>
-    {% endif %}
+        <div class="InputField">
+          <label for="id_username">Username</label>
+          {{ form.username }}
+          {% if form.username.errors %}
+          <ul class="form-errors">
+            {% for error in form.username.errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+        </div>
 
-    <a href="{% url 'home' %}" class="button button--secondary" style="margin-top: 1rem; display: inline-block;">Continue Shopping</a>
+        <div class="InputField">
+          <label for="id_email">Email</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+          <ul class="form-errors">
+            {% for error in form.email.errors %}<li>{{ error }}</li>{% endfor %}
+          </ul>
+          {% endif %}
+        </div>
+
+        <div class="ButtonGroup">
+          <button type="submit" class="button button--primary">Save</button>
+          <a href="{% url 'account' %}" class="button button--secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
   </div>
 </main>
 
+<!-- Footer -->
 <footer>
   <img src="{% static 'img/background/image-footer.svg' %}" alt="Hop & Barley Hops Logo" class="footer__hops-logo">
   <nav class="footer__nav">
@@ -85,6 +106,7 @@
   </nav>
   <p class="footer__copyright">© Hop & Barley 2025. All rights reserved</p>
 </footer>
+
 <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

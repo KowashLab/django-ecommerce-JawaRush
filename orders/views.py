@@ -13,26 +13,13 @@ from .forms import CheckoutForm
 
 def cart_detail(request):
     cart = request.session.get('cart', {})
-    items = []
-    total = 0
-    cleaned = False
+    items, total = _get_cart_items(cart)
 
-    for product_id, quantity in list(cart.items()):
-        product = Product.objects.filter(id=product_id, is_active=True).first()
-        if product is None:
-            del cart[product_id]
-            cleaned = True
-            continue
-        subtotal = product.price * quantity
-        total += subtotal
-        items.append({
-            'product': product,
-            'quantity': quantity,
-            'subtotal': subtotal,
-        })
-
-    if cleaned:
-        request.session['cart'] = cart
+    # Remove stale products from session
+    valid_ids = {str(item['product'].id) for item in items}
+    cleaned_cart = {k: v for k, v in cart.items() if k in valid_ids}
+    if len(cleaned_cart) != len(cart):
+        request.session['cart'] = cleaned_cart
 
     return render(request, 'cart.html', {
         'cart_items': items,
@@ -178,6 +165,8 @@ def checkout(request):
                         quantity=quantity,
                         price=product.price,
                     )
+                    product.stock -= quantity
+                    product.save(update_fields=['stock'])
                     total += product.price * quantity
 
                 order.total_price = total

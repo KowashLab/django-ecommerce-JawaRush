@@ -45,7 +45,7 @@ class Product(models.Model):
         upload_to='products/',
         blank=True,
         null=True,
-        verbose_name='Изображние'
+        verbose_name='Изображение'
     )
     is_active = models.BooleanField(default=True, verbose_name='Активен')
     stock = models.PositiveIntegerField(default=0, verbose_name='Остаток')
