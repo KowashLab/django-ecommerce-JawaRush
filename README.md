@@ -33,18 +33,18 @@ cd WebApp-JavaRush
 docker compose up --build
 ```
 
+Once containers are running, seed the database with demo data:
+
+```bash
+docker compose exec web python manage.py seed_products
+```
+
 Open: **http://localhost:8000**
 
 ### Create a Superuser
 
 ```bash
 docker compose exec web python manage.py createsuperuser
-```
-
-### Seed Products
-
-```bash
-docker compose exec web python manage.py seed_products
 ```
 
 ### Admin Panel
