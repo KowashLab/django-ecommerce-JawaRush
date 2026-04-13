@@ -44,6 +44,7 @@ class HomeView(ListView):
         ctx['selected_categories'] = self.request.GET.getlist('category')
         ctx['current_q'] = self.request.GET.get('q', '')
         ctx['current_sort'] = self.request.GET.get('sort', 'newest')
+        ctx['featured_products'] = Product.objects.filter(is_active=True).order_by('-created_at')[:4]
         return ctx
 
 

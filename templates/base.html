@@ -5,6 +5,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Hop & Barley{% endblock %}</title>
+  <meta name="description" content="Hop & Barley — premium homebrewing ingredients: hops, malts, yeasts, and brewing kits.">
+  <link rel="icon" href="{% static 'img/logo.svg' %}" type="image/svg+xml">
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,8 +38,8 @@
     </nav>
     {% if user.is_authenticated %}
     <div class="header__user-actions">
-      <span class="header__username">{{ user.username }}</span>
-      <form method="post" action="{% url 'logout' %}" style="display:inline">{% csrf_token %}<button type="submit" class="button button--secondary button--small">Logout</button></form>
+      <span class="header__username">Hello, {{ user.username }}</span>
+      <form method="post" action="{% url 'logout' %}" class="logout-form">{% csrf_token %}<button type="submit" class="button button--secondary button--small">Logout</button></form>
       <a href="{% url 'account' %}" class="user-icon" aria-label="My Account">
         <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
       </a>
@@ -54,21 +56,62 @@
   </div>
 </header>
 
-{% block content %}{% endblock %}
+<main class="{% block main_class %}{% endblock %}">
+  {% block content %}{% endblock %}
+</main>
 
 <!-- Footer -->
-<footer>
-  <img src="{% static 'img/background/image-footer.svg' %}" alt="Hop & Barley Hops Logo" class="footer__hops-logo">
-  <nav class="footer__nav">
-    <ul>
-      <li><a href="#">Contact</a></li>
-      <li><a href="#">FAQ</a></li>
-      <li><a href="#">Community</a></li>
-      <li><a href="#">Resources</a></li>
-      <li><a href="#">License</a></li>
-    </ul>
-  </nav>
-  <p class="footer__copyright">© Hop & Barley 2025. All rights reserved</p>
+<footer class="site-footer">
+  <div class="footer-main">
+    <!-- Brand column -->
+    <div class="footer-col footer-col--brand">
+      <a href="{% url 'home' %}" class="footer-brand">
+        <img src="{% static 'img/logo.svg' %}" alt="Hop & Barley Logo" class="footer-brand__logo">
+        <span class="footer-brand__name">Hop & Barley</span>
+      </a>
+      <p class="footer-brand__desc">Premium homebrewing ingredients for craft enthusiasts. Quality hops, malts, yeasts, and complete brewing kits.</p>
+      <div class="footer-social">
+        <a href="#" class="footer-social__link" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a href="#" class="footer-social__link" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+        <a href="#" class="footer-social__link" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+        <a href="#" class="footer-social__link" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+    </div>
+    <!-- Shop column -->
+    <div class="footer-col">
+      <h4 class="footer-col__title">Shop</h4>
+      <ul class="footer-col__list">
+        <li><a href="{% url 'home' %}">All products</a></li>
+        <li><a href="?category=hops">Hops</a></li>
+        <li><a href="?category=malts">Malts</a></li>
+        <li><a href="?category=yeast">Yeast</a></li>
+        <li><a href="?category=kits">Kits</a></li>
+      </ul>
+    </div>
+    <!-- Support column -->
+    <div class="footer-col">
+      <h4 class="footer-col__title">Support</h4>
+      <ul class="footer-col__list">
+        <li><a href="#">FAQ</a></li>
+        <li><a href="#">Contact us</a></li>
+        <li><a href="#">Shipping info</a></li>
+        <li><a href="#">Returns</a></li>
+      </ul>
+    </div>
+    <!-- Account column -->
+    <div class="footer-col">
+      <h4 class="footer-col__title">Account</h4>
+      <ul class="footer-col__list">
+        <li><a href="{% url 'login' %}">Sign in</a></li>
+        <li><a href="{% url 'register' %}">Register</a></li>
+        <li><a href="{% url 'cart_detail' %}">Cart</a></li>
+        <li><a href="{% url 'account' %}">Order history</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© Hop & Barley {% now "Y" %}. All rights reserved.</p>
+  </div>
 </footer>
 
 <script src="{% static 'js/main.js' %}"></script>

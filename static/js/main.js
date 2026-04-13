@@ -226,4 +226,12 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }
+
+    // --- Clickable product cards (navigate to detail, skip if add-to-cart clicked) ---
+    document.querySelectorAll('.product-card[data-href], .featured-card[data-href]').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+            if (e.target.closest('.product-card__add-btn') || e.target.closest('.featured-card__cart-btn')) return;
+            window.location.href = card.dataset.href;
+        });
+    });
 });

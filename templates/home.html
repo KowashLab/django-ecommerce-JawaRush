@@ -1,107 +1,206 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Каталог товаров | Hop & Barley{% endblock %}
+{% block title %}Products | Hop & Barley{% endblock %}
 
 {% block content %}
-<main>
-    <section class="hero-banner">
-        <img src="{% static 'img/background/hopfen-fields.jpg' %}" alt="Beautiful hops on a dark background" class="hero-banner__image">
-        <div class="hero-banner__overlay"></div>
+    <!-- ═══ 1. HERO ═══ -->
+    <section class="hero">
+        <img src="{% static 'img/background/hopfen-fields.jpg' %}" alt="Hops field at golden hour" class="hero__bg">
+        <div class="hero__overlay"></div>
+        <div class="hero__vignette"></div>
+        <div class="hero__content">
+            <span class="hero__badge">Craft brewing essentials</span>
+            <h1 class="hero__title">Ingredients that make<br>great beer possible</h1>
+            <p class="hero__subtitle">Hand-selected hops, premium malts, and professional-grade yeasts — everything you need to brew with confidence.</p>
+            <a href="#products" class="hero__cta">Explore products <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
     </section>
 
-    <form method="get" action="{% url 'home' %}" class="container main-content-grid">
-        <aside class="sidebar filter-menu">
-            <div class="sidebar__section">
-                <h3 class="section-title">Keywords</h3>
-                <div class="keywords-list">
-                </div>
-            </div>
-
-            <div class="sidebar__section">
-                <h3 class="section-title">Product Type</h3>
-                <div class="checkbox-group">
-                    {% for cat in categories %}
-                    <label class="checkbox-container">{{ cat.name }}
-                        <input type="checkbox" name="category" value="{{ cat.slug }}"
-                               {% if cat.slug in selected_categories %}checked{% endif %}>
-                        <span class="checkmark"></span>
-                    </label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <button type="submit" class="button button--primary button--full-width">Apply Filters</button>
-        </aside>
-
-        <section class="products-area product-grid-section">
-            <div class="search-sort-bar">
-                <div class="search-input-wrapper">
-                    <input type="text" name="q" value="{{ current_q }}" placeholder="Search" class="search-input">
-                    <button type="submit" class="search-button" aria-label="Search">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </div>
-                <div class="sort-options">
-                    <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=newest" class="sort-button{% if current_sort == 'newest' %} active-sort{% endif %}">
-                        <span>New</span>
-                    </a>
-                    <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_asc" class="sort-button{% if current_sort == 'price_asc' %} active-sort{% endif %}">Price ascending</a>
-                    <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_desc" class="sort-button{% if current_sort == 'price_desc' %} active-sort{% endif %}">Price descending</a>
-                </div>
-            </div>
-
-            <div class="product-grid">
-                {% for product in products %}
-                <a href="{% url 'product_detail' product.slug %}" class="product-card-link">
-                    <div class="product-card">
-                        {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-card__image">
-                        {% else %}
-                        <img src="{% static 'img/products/placeholder.jpg' %}" alt="{{ product.name }}" class="product-card__image">
-                        {% endif %}
-                        <div class="product-card__info">
-                            <h4 class="product-card__name">{{ product.name }}</h4>
-                            <p class="product-card__price">${{ product.price }}</p>
-                            <p class="product-card__description">{{ product.description|truncatewords:6 }}</p>
-                        </div>
-                    </div>
+    <!-- ═══ 2. CATEGORIES (navigation strip) ═══ -->
+    <nav class="categories-strip">
+        <div class="container categories-strip__inner">
+            <span class="categories-strip__label">Shop by type</span>
+            <div class="categories-strip__items">
+                <a href="{% url 'home' %}" class="cat-pill{% if not selected_categories %} cat-pill--active{% endif %}">
+                    <i class="fa-solid fa-border-all"></i> All
                 </a>
-                {% empty %}
-                <p>No products found.</p>
+                {% for cat in categories %}
+                <a href="?category={{ cat.slug }}" class="cat-pill{% if cat.slug in selected_categories %} cat-pill--active{% endif %}">
+                    {% if cat.slug == 'hops' %}<i class="fa-solid fa-leaf"></i>
+                    {% elif cat.slug == 'malts' %}<i class="fa-solid fa-wheat-awn"></i>
+                    {% elif cat.slug == 'yeast' %}<i class="fa-solid fa-flask"></i>
+                    {% elif cat.slug == 'kits' %}<i class="fa-solid fa-box-open"></i>
+                    {% else %}<i class="fa-solid fa-tag"></i>
+                    {% endif %}
+                    {{ cat.name }}
+                </a>
                 {% endfor %}
             </div>
+        </div>
+    </nav>
 
-            {% if is_paginated %}
-            <div class="pagination">
-                {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--prev">
-                    <i class="fa-solid fa-arrow-left"></i>
-                    <span>Previous</span>
-                </a>
-                {% endif %}
-                <div class="pagination-list">
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link active">{{ num }}</a>
-                        {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
-                        <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
-                        {% elif num == 1 or num == page_obj.paginator.num_pages %}
-                        <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
-                        {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
-                        <span class="pagination__dots">...</span>
+    <!-- ═══ 3. FEATURED PRODUCTS ═══ -->
+    <section class="featured-section">
+        <div class="container">
+            <div class="featured-header">
+                <h2 class="section-heading">Featured picks</h2>
+                <a href="#products" class="featured-header__link">View all <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+            <div class="featured-grid">
+                {% for product in featured_products %}
+                <div class="featured-card" data-href="{% url 'product_detail' product.slug %}">
+                    <div class="featured-card__image-wrapper">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="featured-card__image">
+                        {% else %}
+                        <img src="{% static 'img/products/placeholder.jpg' %}" alt="{{ product.name }}" class="featured-card__image">
                         {% endif %}
+                    </div>
+                    <div class="featured-card__info">
+                        <span class="featured-card__category">{{ product.category.name }}</span>
+                        <h3 class="featured-card__name">{{ product.name }}</h3>
+                        <p class="featured-card__desc">{{ product.description|truncatewords:12 }}</p>
+                        <div class="featured-card__footer">
+                            <span class="featured-card__price">${{ product.price }}</span>
+                            <a href="{% url 'add_to_cart' product.pk %}" class="featured-card__cart-btn">
+                                <i class="fa-solid fa-bag-shopping"></i> Add to cart
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 4. BENEFITS / WHY CHOOSE US ═══ -->
+    <section class="benefits-section">
+        <div class="container">
+            <h2 class="section-heading section-heading--center">Why brewers choose us</h2>
+            <p class="benefits-subtitle">We're not just a store — we're a resource for the craft brewing community.</p>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <span class="benefit-card__icon"><i class="fa-solid fa-award"></i></span>
+                    <h3 class="benefit-card__title">Quality ingredients</h3>
+                    <p class="benefit-card__text">Hand-selected hops, malts, and yeasts sourced from trusted farms and malthouses worldwide.</p>
+                </div>
+                <div class="benefit-card">
+                    <span class="benefit-card__icon"><i class="fa-solid fa-truck-fast"></i></span>
+                    <h3 class="benefit-card__title">Fast delivery</h3>
+                    <p class="benefit-card__text">Orders ship within 24&nbsp;hours. Fresh ingredients arrive at your door quickly and safely.</p>
+                </div>
+                <div class="benefit-card">
+                    <span class="benefit-card__icon"><i class="fa-solid fa-users"></i></span>
+                    <h3 class="benefit-card__title">Trusted by brewers</h3>
+                    <p class="benefit-card__text">Join thousands of homebrewers who rely on us for consistent, professional-grade supplies.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ 5. ALL PRODUCTS (catalog) ═══ -->
+    <section class="catalog-section" id="products">
+        <div class="container">
+            <h2 class="section-heading">All products</h2>
+        </div>
+
+        <form method="get" action="{% url 'home' %}" class="container main-content-grid">
+            <aside class="sidebar filter-menu">
+                <div class="sidebar__section">
+                    <h3 class="section-title">Keywords</h3>
+                    <div class="keywords-list"></div>
+                </div>
+                <div class="sidebar__section">
+                    <h3 class="section-title">Product Type</h3>
+                    <div class="checkbox-group">
+                        {% for cat in categories %}
+                        <label class="checkbox-container">{{ cat.name }}
+                            <input type="checkbox" name="category" value="{{ cat.slug }}"
+                                   {% if cat.slug in selected_categories %}checked{% endif %}>
+                            <span class="checkmark"></span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <button type="submit" class="button button--primary button--full-width">Apply Filters</button>
+            </aside>
+
+            <section class="products-area product-grid-section">
+                <div class="search-sort-bar">
+                    <div class="search-input-wrapper">
+                        <input type="text" name="q" value="{{ current_q }}" placeholder="Search" class="search-input">
+                        <button type="submit" class="search-button" aria-label="Search">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                    </div>
+                    <div class="sort-options">
+                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=newest" class="sort-button{% if current_sort == 'newest' %} active-sort{% endif %}">
+                            <span>New</span>
+                        </a>
+                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_asc" class="sort-button{% if current_sort == 'price_asc' %} active-sort{% endif %}">Price ascending</a>
+                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_desc" class="sort-button{% if current_sort == 'price_desc' %} active-sort{% endif %}">Price descending</a>
+                    </div>
+                </div>
+
+                <div class="product-grid">
+                    {% for product in products %}
+                    <div class="product-card" data-href="{% url 'product_detail' product.slug %}">
+                        <div class="product-card__image-wrapper">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-card__image">
+                            {% else %}
+                            <img src="{% static 'img/products/placeholder.jpg' %}" alt="{{ product.name }}" class="product-card__image">
+                            {% endif %}
+                        </div>
+                        <div class="product-card__info">
+                            <p class="product-card__price">${{ product.price }}</p>
+                            <h4 class="product-card__name">{{ product.name }}</h4>
+                            <p class="product-card__description">{{ product.description|truncatewords:8 }}</p>
+                            <a href="{% url 'add_to_cart' product.pk %}" class="product-card__add-btn">
+                                <i class="fa-solid fa-bag-shopping"></i> Add to cart
+                            </a>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="fa-solid fa-box-open empty-state__icon"></i>
+                        <p class="empty-state__text">No products found.</p>
+                        <a href="{% url 'home' %}" class="button button--secondary">Clear filters</a>
+                    </div>
                     {% endfor %}
                 </div>
-                {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--next">
-                    <span>Next</span>
-                    <i class="fa-solid fa-arrow-right"></i>
-                </a>
+
+                {% if is_paginated %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                    <a href="?page={{ page_obj.previous_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--prev">
+                        <i class="fa-solid fa-arrow-left"></i>
+                        <span>Previous</span>
+                    </a>
+                    {% endif %}
+                    <div class="pagination-list">
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link active">{{ num }}</a>
+                            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
+                            {% elif num == 1 or num == page_obj.paginator.num_pages %}
+                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
+                            {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+                            <span class="pagination__dots">...</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--next">
+                        <span>Next</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
                 {% endif %}
-            </div>
-            {% endif %}
-        </section>
-    </form>
-</main>
+            </section>
+        </form>
+    </section>
 {% endblock %}
