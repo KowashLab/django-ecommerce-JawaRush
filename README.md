@@ -4,7 +4,7 @@ An e-commerce web application for homebrewing supplies built with Django.
 
 ## Tech Stack
 
-- **Backend:** Django 5.2, Django REST Framework
+- **Backend:** Django 5.2
 - **Database:** PostgreSQL 15
 - **Admin UI:** Django Jazzmin
 - **Containerization:** Docker & Docker Compose
@@ -12,11 +12,12 @@ An e-commerce web application for homebrewing supplies built with Django.
 
 ## Features
 
-- **Product Catalog** — browsable product listings with categories, detail pages, and slug-based URLs
+- **Product Catalog** — browsable product listings with categories, filtering, search, sorting, and pagination
 - **Shopping Cart** — session-based cart with add, remove, and quantity update
 - **Checkout & Orders** — order placement with shipping details, payment method selection, and email notifications
-- **User Authentication** — registration, login, logout (CSRF-protected POST), and account page with order history
-- **Admin Panel** — Jazzmin-powered admin interface for managing products, categories, and orders
+- **User Authentication** — registration, login, logout (CSRF-protected POST), password change, and profile editing
+- **Account** — order history with status filtering
+- **Admin Panel** — Jazzmin-powered admin with order analytics (total orders, revenue)
 
 ## Getting Started
 
@@ -27,49 +28,58 @@ An e-commerce web application for homebrewing supplies built with Django.
 ### Run the Project
 
 ```bash
+git clone https://github.com/KowashLab/WebApp-JavaRush.git
+cd WebApp-JavaRush
 docker compose up --build
 ```
 
-The application will be available at **http://localhost:8000**.
+Open: **http://localhost:8000**
 
 ### Create a Superuser
-
-With the containers running, open a shell in the web container:
 
 ```bash
 docker compose exec web python manage.py createsuperuser
 ```
 
-Follow the prompts to set a username, email, and password.
+### Seed Products
 
-### Access the Admin Panel
+```bash
+docker compose exec web python manage.py seed_products
+```
 
-Navigate to **http://localhost:8000/admin/** and log in with the superuser credentials created above.
+### Admin Panel
+
+Navigate to **http://localhost:8000/admin/** and log in with the superuser credentials.
+
+## Environment Variables
+
+The project works out of the box with default values. To customize, copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+| Variable      | Default      | Description        |
+|---------------|--------------|--------------------|
+| `SECRET_KEY`  | dev fallback | Django secret key  |
+| `DEBUG`       | `True`       | Debug mode         |
+| `DB_NAME`     | `postgres`   | Database name      |
+| `DB_USER`     | `postgres`   | Database user      |
+| `DB_PASSWORD` | `postgres`   | Database password  |
+| `DB_HOST`     | `db`         | Database host      |
+| `DB_PORT`     | `5432`       | Database port      |
 
 ## Project Structure
 
 ```
 core/           — Django project settings and root URL configuration
-products/       — Product and Category models, views, admin
+products/       — Product and Category models, views, admin, seed command
 orders/         — Order and OrderItem models, cart, checkout, payment views
-users/          — Registration, login, logout, account views
-reviews/        — Product reviews (app scaffold)
+users/          — Registration, login, logout, account, profile views
+reviews/        — Product reviews model and admin
 templates/      — Django HTML templates
 static/         — CSS, JavaScript, and images
 ```
-
-## Environment Variables
-
-The following variables are configured via `compose.yaml`:
-
-| Variable      | Default                              | Description          |
-|---------------|--------------------------------------|----------------------|
-| `DB_ENGINE`   | `django.db.backends.postgresql`      | Database backend     |
-| `DB_NAME`     | `mydb`                               | Database name        |
-| `DB_USER`     | `postgres`                           | Database user        |
-| `DB_PASSWORD` | `password`                           | Database password    |
-| `DB_HOST`     | `db`                                 | Database host        |
-| `DB_PORT`     | `5432`                               | Database port        |
 
 ## License
 
