@@ -2,8 +2,9 @@
 
 {% block title %}My Account | Hop & Barley{% endblock %}
 
+{% block main_class %}account-page-wrapper{% endblock %}
+
 {% block content %}
-<main class="account-page-wrapper">
   <div class="account-container">
     <!-- Tabs Navigation -->
     <div class="account-tabs">
@@ -16,8 +17,8 @@
       <!-- Order History Panel -->
       <div id="order-history" class="tab-pane active">
         <!-- Status Filter -->
-        <form method="get" action="{% url 'account' %}" style="margin-bottom: 1rem;">
-          <select name="status" onchange="this.form.submit()" class="Input" style="max-width: 200px;">
+        <form method="get" action="{% url 'account' %}" class="filter-form">
+          <select name="status" onchange="this.form.submit()" class="Input filter-select">
             <option value="">All statuses</option>
             {% for value, label in statuses %}
             <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
@@ -49,7 +50,13 @@
             </div>
             {% empty %}
             <div class="order-table-row">
-              <div class="order-table-cell" style="grid-column: 1 / -1; text-align: center;">No orders yet.</div>
+              <div class="order-table-cell full-row">
+                <div class="empty-state">
+                    <i class="fa-solid fa-receipt empty-state__icon"></i>
+                    <p class="empty-state__text">No orders yet</p>
+                    <a href="{% url 'home' %}" class="button button--primary">Start shopping</a>
+                </div>
+              </div>
             </div>
             {% endfor %}
           </div>
@@ -94,5 +101,4 @@
 
     </div>
   </div>
-</main>
 {% endblock %}

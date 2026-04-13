@@ -2,29 +2,36 @@
 
 {% block title %}Order Confirmed | Hop & Barley{% endblock %}
 
+{% block main_class %}cart-page-wrapper{% endblock %}
+
 {% block content %}
-<main class="cart-page-wrapper">
   <div class="cart-container">
-    <h1 class="cart-title">Order Confirmed</h1>
-    <p>Your order <strong>#{{ order.pk }}</strong> has been placed successfully.</p>
-    <p>Status: <strong>{{ order.get_status_display }}</strong></p>
-    <p>Total: <strong>${{ order.total_price }}</strong></p>
+    <div class="empty-state mb-2">
+      <i class="fa-solid fa-circle-check empty-state__icon empty-state__icon--success"></i>
+      <h1 class="cart-title">Order Confirmed</h1>
+      <p>Your order <strong>#{{ order.pk }}</strong> has been placed successfully.</p>
+    </div>
 
-    <h2 style="margin-top: 2rem;">Items</h2>
-    {% for item in order.items.all %}
-    <p>{{ item.product.name }} × {{ item.quantity }} — ${{ item.price }}</p>
-    {% empty %}
-    <p>No items.</p>
-    {% endfor %}
+    <div class="order-details">
+      <p>Status: <strong>{{ order.get_status_display }}</strong></p>
+      <p>Total: <strong>${{ order.total_price }}</strong></p>
 
-    {% if order.status == 'pending' %}
-    <form method="post" action="{% url 'process_payment' order.pk %}" style="margin-top: 2rem;">
-      {% csrf_token %}
-      <button type="submit" class="button button--primary">Pay now</button>
-    </form>
-    {% endif %}
+      <h2 class="order-section-heading">Items</h2>
+      {% for item in order.items.all %}
+      <p>{{ item.product.name }} &times; {{ item.quantity }} — ${{ item.price }}</p>
+      {% empty %}
+      <p>No items.</p>
+      {% endfor %}
+    </div>
 
-    <a href="{% url 'home' %}" class="button button--secondary" style="margin-top: 1rem; display: inline-block;">Continue Shopping</a>
+    <div class="order-actions">
+      {% if order.status == 'pending' %}
+      <form method="post" action="{% url 'process_payment' order.pk %}">
+        {% csrf_token %}
+        <button type="submit" class="button button--primary">Pay now</button>
+      </form>
+      {% endif %}
+      <a href="{% url 'home' %}" class="button button--secondary">Back to catalog</a>
+    </div>
   </div>
-</main>
 {% endblock %}

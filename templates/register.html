@@ -3,8 +3,9 @@
 
 {% block title %}Register | Hop & Barley{% endblock %}
 
+{% block main_class %}auth-page-wrapper{% endblock %}
+
 {% block content %}
-<main class="auth-page-wrapper">
     <div class="auth-background">
         <img src="{% static 'img/background/pattern.jpg' %}" alt="Background pattern">
     </div>
@@ -59,5 +60,4 @@
             <p class="auth-switch">Already have an account? <a href="{% url 'login' %}">Sign in</a></p>
         </div>
     </div>
-</main>
 {% endblock %}

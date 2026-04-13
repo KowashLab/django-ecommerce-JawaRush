@@ -3,8 +3,9 @@
 
 {% block title %}Shopping Cart | Hop & Barley{% endblock %}
 
+{% block main_class %}cart-page-wrapper{% endblock %}
+
 {% block content %}
-<main class="cart-page-wrapper">
   <div class="cart-container">
     <h1 class="cart-title">Shopping Cart</h1>
 
@@ -49,7 +50,11 @@
         </div>
       </div>
       {% empty %}
-      <p class="cart-empty-message">Your cart is empty. <a href="{% url 'home' %}">Browse products</a></p>
+      <div class="empty-state">
+          <i class="fa-solid fa-cart-shopping empty-state__icon"></i>
+          <p class="empty-state__text">Your cart is empty</p>
+          <a href="{% url 'home' %}" class="button button--primary">Browse products</a>
+      </div>
       {% endfor %}
     </div>
 
@@ -63,5 +68,4 @@
     </div>
     {% endif %}
   </div>
-</main>
 {% endblock %}
