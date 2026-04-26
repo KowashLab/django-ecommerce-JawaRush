@@ -1,60 +1,100 @@
-# Hop & Barley - Django E-commerce
+# Hop & Barley — Django E-commerce
 
-Hop & Barley is a Django-based e-commerce app for homebrewing supplies with web UI, REST API, and GraphQL analytics.
+Full-featured e-commerce platform for homebrewing supplies built with Django.
+
+Includes:
+
+* Web application (Django templates + sessions)
+* REST API (DRF + JWT authentication)
+* GraphQL analytics layer
+* Dockerized infrastructure with PostgreSQL
+* High test coverage and CI-ready setup
+
+---
 
 ## Tech Stack
 
-- Django
-- Django REST Framework (DRF)
-- PostgreSQL
-- Docker / Docker Compose
-- GraphQL (graphene-django)
+* Django
+* Django REST Framework (DRF)
+* GraphQL (graphene-django)
+* PostgreSQL
+* Docker / Docker Compose
+* Coverage (testing)
+* Flake8 (linting)
+
+---
 
 ## Quick Start
 
-1. Start services:
-
 ```bash
 docker compose up --build
-```
-
-2. Run migrations:
-
-```bash
 docker compose exec web python manage.py migrate
-```
-
-3. Seed demo data:
-
-```bash
 docker compose exec web python manage.py seed_products
 ```
 
-App URL: http://localhost:8000
+App: http://localhost:8000
 
-## API
+---
 
-- Swagger/OpenAPI docs: http://localhost:8000/api/docs/
-- JWT obtain token: POST http://localhost:8000/api/token/
-- JWT refresh token: POST http://localhost:8000/api/token/refresh/
+## Authentication (JWT)
 
-Use JWT in protected endpoints:
+Obtain token:
+
+```bash
+POST /api/token/
+```
+
+Refresh token:
+
+```bash
+POST /api/token/refresh/
+```
+
+Use in requests:
 
 ```text
 Authorization: Bearer <access_token>
 ```
 
-## GraphQL
+---
 
-- Endpoint: http://localhost:8000/graphql/
+## REST API
 
-Example query:
+Swagger docs:
+
+```
+http://localhost:8000/api/docs/
+```
+
+Main endpoints:
+
+* `/api/products/`
+* `/api/categories/`
+* `/api/orders/`
+* `/api/cart/`
+* `/api/products/{id}/reviews/`
+
+---
+
+## GraphQL Analytics
+
+Endpoint:
+
+```
+http://localhost:8000/graphql/
+```
+
+Example:
 
 ```graphql
-query {
+{
   totalOrders
   totalRevenue
   averageOrderValue
+  revenueByDay {
+    date
+    revenue
+  }
   topProducts {
     id
     name
@@ -62,6 +102,8 @@ query {
   }
 }
 ```
+
+---
 
 ## Testing
 
@@ -71,15 +113,68 @@ Run tests:
 python manage.py test
 ```
 
-Run tests with coverage:
+Coverage:
 
 ```bash
 coverage run manage.py test
 coverage report
 ```
 
-Current project coverage is around 90%+.
+Coverage: **90%+**
+
+---
+
+## Infrastructure
+
+* PostgreSQL database
+* Docker Compose setup
+* Environment-based configuration
+
+---
+
+## Project Structure
+
+* `products/` — catalog logic
+* `orders/` — cart and checkout
+* `users/` — authentication and profiles
+* `reviews/` — product reviews
+* `api/` — REST API layer
+* `analytics/` — GraphQL schema
+* `templates/`, `static/` — frontend
+
+---
+
+## Notes
+
+* Orders store price snapshots (OrderItem)
+* Reviews allowed only after purchase
+* Cart stored in session
+* GraphQL used for analytics only (read-only)
+
+---
 
 ## License
 
-This project is for educational purposes.
+Educational project
+
+---
+
+## Author
+
+* Name: Oleg Covas
+
+---
+
+## Checklist
+
+* [x] Catalog with filters, search, pagination
+* [x] Product page with reviews
+* [x] Cart functionality
+* [x] Checkout with email
+* [x] User account and orders
+* [x] REST API with JWT
+* [x] Admin panel with analytics
+* [x] Swagger documentation
+* [x] Tests (90%+ coverage)
+* [x] Docker setup
+* [x] GraphQL analytics
