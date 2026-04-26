@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
@@ -6,12 +7,14 @@ from django.shortcuts import render, redirect
 from django.views.decorators.http import require_POST
 
 from orders.models import Order
-from .forms import RegisterForm, LoginForm, ProfileForm
+from .forms import RegisterForm, LoginForm, ProfileForm, AddressForm
+from .models import Address
 
 User = get_user_model()
 
 
 def register_view(request):
+    """Register new user with password validation. Redirect authenticated users to home."""
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -37,6 +40,7 @@ def register_view(request):
 
 
 def login_view(request):
+    """Authenticate user and create session. Redirect authenticated users to home."""
     if request.user.is_authenticated:
         return redirect('home')
 
@@ -79,6 +83,41 @@ def profile_view(request):
 
 @login_required(login_url='login')
 def account_view(request):
+    """User account dashboard with address management, order history, and status filtering."""
+    addresses = Address.objects.filter(user=request.user).order_by('-is_default', '-created_at')
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'add_address':
+            address_form = AddressForm(request.POST)
+            if address_form.is_valid():
+                address = address_form.save(commit=False)
+                address.user = request.user
+
+                if address.is_default or not addresses.exists():
+                    Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+                    address.is_default = True
+
+                address.save()
+                messages.success(request, 'Address added successfully.')
+                return redirect('account')
+        elif action == 'set_default':
+            address_id = request.POST.get('address_id')
+            selected = Address.objects.filter(user=request.user, id=address_id).first()
+            if selected:
+                Address.objects.filter(user=request.user, is_default=True).update(is_default=False)
+                selected.is_default = True
+                selected.save(update_fields=['is_default'])
+                messages.success(request, 'Default address updated.')
+                return redirect('account')
+            messages.error(request, 'Address not found.')
+            address_form = AddressForm()
+        else:
+            address_form = AddressForm()
+    else:
+        address_form = AddressForm()
+
     orders = Order.objects.filter(user=request.user)
 
     status = request.GET.get('status')
@@ -87,6 +126,8 @@ def account_view(request):
 
     return render(request, 'account.html', {
         'orders': orders,
+        'addresses': addresses,
+        'address_form': address_form,
         'statuses': Order.Status.choices,
         'current_status': status,
     })

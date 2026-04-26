@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
 
+from .models import Address
+
 User = get_user_model()
 
 
@@ -53,4 +55,17 @@ class ProfileForm(forms.ModelForm):
         widgets = {
             'username': forms.TextInput(attrs={'class': 'Input'}),
             'email': forms.EmailInput(attrs={'class': 'Input'}),
+        }
+
+
+class AddressForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = ['full_name', 'phone', 'city', 'address_line', 'postal_code', 'is_default']
+        widgets = {
+            'full_name': forms.TextInput(attrs={'class': 'Input', 'placeholder': 'Full name'}),
+            'phone': forms.TextInput(attrs={'class': 'Input', 'placeholder': 'Phone'}),
+            'city': forms.TextInput(attrs={'class': 'Input', 'placeholder': 'City'}),
+            'address_line': forms.TextInput(attrs={'class': 'Input', 'placeholder': 'Street and house'}),
+            'postal_code': forms.TextInput(attrs={'class': 'Input', 'placeholder': 'Postal code'}),
         }

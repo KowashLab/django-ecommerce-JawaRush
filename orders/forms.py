@@ -24,3 +24,10 @@ class CheckoutForm(forms.Form):
         label='Payment method',
         widget=forms.RadioSelect,
     )
+
+    def __init__(self, *args, use_saved_address: bool = False, **kwargs):
+        super().__init__(*args, **kwargs)
+        if use_saved_address:
+            self.fields['full_name'].required = False
+            self.fields['phone'].required = False
+            self.fields['shipping_address'].required = False

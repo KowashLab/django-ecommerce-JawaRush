@@ -12,15 +12,20 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'status', 'payment_method', 'total_price', 'created_at')
-    list_filter = ('status', 'payment_method', 'created_at')
+    list_display = ('id', 'user', 'status', 'total_price', 'created_at')
+    list_filter = ('status', 'created_at')
     search_fields = ('user__username',)
     inlines = [OrderItemInline]
+    change_list_template = 'admin/orders/order/change_list.html'
 
     def changelist_view(self, request, extra_context=None):
-        qs = self.get_queryset(request)
-        stats = qs.aggregate(total_revenue=Sum('total_price'))
-        extra_context = extra_context or {}
-        extra_context['total_orders'] = qs.count()
-        extra_context['total_revenue'] = stats['total_revenue'] or 0
-        return super().changelist_view(request, extra_context=extra_context)
+        response = super().changelist_view(request, extra_context=extra_context)
+
+        # Use the changelist queryset so analytics respect active filters/search.
+        if hasattr(response, 'context_data') and response.context_data.get('cl'):
+            queryset = response.context_data['cl'].queryset
+            stats = queryset.aggregate(total_revenue=Sum('total_price'))
+            response.context_data['total_orders'] = queryset.count()
+            response.context_data['total_revenue'] = stats.get('total_revenue') or 0
+
+        return response
