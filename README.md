@@ -1,85 +1,84 @@
-# Hop & Barley — Homebrewing Supply Store
+# Hop & Barley - Django E-commerce
 
-An e-commerce web application for homebrewing supplies built with Django.
+Hop & Barley is a Django-based e-commerce app for homebrewing supplies with web UI, REST API, and GraphQL analytics.
 
 ## Tech Stack
 
-- **Backend:** Django 5.2
-- **Database:** PostgreSQL 15
-- **Admin UI:** Django Jazzmin
-- **Containerization:** Docker & Docker Compose
-- **Language:** Python 3.12
+- Django
+- Django REST Framework (DRF)
+- PostgreSQL
+- Docker / Docker Compose
+- GraphQL (graphene-django)
 
-## Features
+## Quick Start
 
-- **Product Catalog** — browsable product listings with categories, filtering, search, sorting, and pagination
-- **Shopping Cart** — session-based cart with add, remove, and quantity update
-- **Checkout & Orders** — order placement with shipping details, payment method selection, and email notifications
-- **User Authentication** — registration, login, logout (CSRF-protected POST), password change, and profile editing
-- **Account** — order history with status filtering
-- **Admin Panel** — Jazzmin-powered admin with order analytics (total orders, revenue)
-
-## Getting Started
-
-### Prerequisites
-
-- [Docker](https://docs.docker.com/get-docker/) and Docker Compose
-
-### Run the Project
+1. Start services:
 
 ```bash
-git clone https://github.com/KowashLab/WebApp-JavaRush.git
-cd WebApp-JavaRush
 docker compose up --build
 ```
 
-Once containers are running, seed the database with demo data:
+2. Run migrations:
+
+```bash
+docker compose exec web python manage.py migrate
+```
+
+3. Seed demo data:
 
 ```bash
 docker compose exec web python manage.py seed_products
 ```
 
-Open: **http://localhost:8000**
+App URL: http://localhost:8000
 
-### Create a Superuser
+## API
+
+- Swagger/OpenAPI docs: http://localhost:8000/api/docs/
+- JWT obtain token: POST http://localhost:8000/api/token/
+- JWT refresh token: POST http://localhost:8000/api/token/refresh/
+
+Use JWT in protected endpoints:
+
+```text
+Authorization: Bearer <access_token>
+```
+
+## GraphQL
+
+- Endpoint: http://localhost:8000/graphql/
+
+Example query:
+
+```graphql
+query {
+  totalOrders
+  totalRevenue
+  averageOrderValue
+  topProducts {
+    id
+    name
+    ordersCount
+  }
+}
+```
+
+## Testing
+
+Run tests:
 
 ```bash
-docker compose exec web python manage.py createsuperuser
+python manage.py test
 ```
 
-### Admin Panel
-
-Navigate to **http://localhost:8000/admin/** and log in with the superuser credentials.
-
-## Environment Variables
-
-The project works out of the box with default values. To customize, copy `.env.example` to `.env`:
+Run tests with coverage:
 
 ```bash
-cp .env.example .env
+coverage run manage.py test
+coverage report
 ```
 
-| Variable      | Default      | Description        |
-|---------------|--------------|--------------------|
-| `SECRET_KEY`  | dev fallback | Django secret key  |
-| `DEBUG`       | `True`       | Debug mode         |
-| `DB_NAME`     | `postgres`   | Database name      |
-| `DB_USER`     | `postgres`   | Database user      |
-| `DB_PASSWORD` | `postgres`   | Database password  |
-| `DB_HOST`     | `db`         | Database host      |
-| `DB_PORT`     | `5432`       | Database port      |
-
-## Project Structure
-
-```
-core/           — Django project settings and root URL configuration
-products/       — Product and Category models, views, admin, seed command
-orders/         — Order and OrderItem models, cart, checkout, payment views
-users/          — Registration, login, logout, account, profile views
-reviews/        — Product reviews model and admin
-templates/      — Django HTML templates
-static/         — CSS, JavaScript, and images
-```
+Current project coverage is around 90%+.
 
 ## License
 
