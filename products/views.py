@@ -4,6 +4,8 @@ from django.db.models import Q
 from django.db.models import QuerySet
 from django.views.generic import ListView, DetailView
 
+from reviews.models import Review
+
 from .models import Category, Product
 
 SORT_OPTIONS = {
@@ -81,3 +83,10 @@ class ProductDetailView(DetailView):
     context_object_name = 'product'
     slug_field = 'slug'
     slug_url_kwarg = 'slug'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        product = self.object
+        reviews = Review.objects.filter(product=product).select_related('user').order_by('-created_at')
+        context['reviews'] = reviews
+        return context

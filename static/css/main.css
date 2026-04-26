@@ -45,9 +45,9 @@ p, h1, h2, h3, h4, h5, h6 {
 
 /* Container */
 .container {
-    max-width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 0 clamp(24px, 4vw, 80px);
+    padding: 0 16px;
 }
 
 /* Header styles */
@@ -64,7 +64,7 @@ header {
 
 .header-container {
     width: 100%;
-    max-width: 100%;
+    max-width: 1200px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -791,8 +791,8 @@ header {
 .product-grid {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 36px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
     align-items: stretch;
 }
 
@@ -820,15 +820,24 @@ header {
     position: relative;
     background-color: #f6f6f6;
     overflow: hidden;
-    aspect-ratio: 4 / 3;
+    height: 200px;
+    aspect-ratio: auto;
 }
 
 .product-card__image {
     width: 100%;
-    height: 100%;
+    height: 200px;
     object-fit: cover;
     display: block;
+    border-radius: 8px;
     transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+}
+
+.product-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 8px;
 }
 
 .product-card:hover .product-card__image {
@@ -1349,22 +1358,31 @@ header {
 }
 
 .page-product .container > section {
-    margin-bottom: 64px;
+    margin: 60px 0;
 }
 .page-product .container > section:last-child {
     margin-bottom: 0;
 }
 
+.section {
+    margin: 60px 0;
+}
+
 /* --- Product Details Section --- */
 .product-details-section {
-    display: flex;
-    gap: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: start;
 }
 
 .product-image-container {
-    width: 640px;
-    height: 484px;
-    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    min-height: 420px;
 }
 
 .product-image {
@@ -1379,6 +1397,7 @@ header {
     flex-direction: column;
     gap: 24px;
     flex-grow: 1;
+    max-width: 520px;
 }
 
 .product-title-price {
@@ -2558,4 +2577,28 @@ header {
 .static-page-content .button {
     height: 44px;
     padding: 0 32px;
+}
+
+@media (max-width: 768px) {
+    .product-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .product-details-section {
+        grid-template-columns: 1fr;
+    }
+
+    .product-info-column {
+        max-width: 100%;
+    }
+
+    .product-image-container {
+        min-height: 320px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-grid {
+        grid-template-columns: 1fr;
+    }
 }

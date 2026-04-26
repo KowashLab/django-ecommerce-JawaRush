@@ -50,14 +50,15 @@
             </div>
             {% endif %}
             <div class="reviews-grid">
-                {% for review in product.reviews.all %}
+                {% if reviews %}
+                {% for review in reviews %}
                 <div class="review-card">
                     <div class="review-rating">
                         {% for i in "12345" %}
                             {% if forloop.counter <= review.rating %}
-                            <i class="fa-solid fa-star"></i>
+                            ★
                             {% else %}
-                            <i class="fa-regular fa-star"></i>
+                            ☆
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -68,9 +69,10 @@
                         <span class="author-name">{{ review.user.username }}</span>
                     </div>
                 </div>
-                {% empty %}
-                <p>No reviews yet.</p>
                 {% endfor %}
+                {% else %}
+                <p>No reviews yet.</p>
+                {% endif %}
             </div>
         </section>
     </div>
