@@ -1,11 +1,12 @@
 from decimal import Decimal
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
 from rest_framework import status
 
 from products.models import Category, Product
 from orders.models import Order, OrderItem
+from reviews.models import Review
 
 User = get_user_model()
 
@@ -305,3 +306,224 @@ class OrderItemNestedSerializerTests(TestCase):
         # Check that product info is in the item
         self.assertIn('product_name', item)
         self.assertEqual(item['product_name'], 'Test Product')
+
+
+class GraphQLAnalyticsTests(TestCase):
+        """Test GraphQL analytics queries (read-only)."""
+
+        def setUp(self):
+                self.client = Client()
+                self.category = Category.objects.create(name='Analytics', slug='analytics')
+
+                self.product_a = Product.objects.create(
+                        name='Product A',
+                        slug='product-a',
+                        description='A',
+                        price=Decimal('10.00'),
+                        category=self.category,
+                )
+                self.product_b = Product.objects.create(
+                        name='Product B',
+                        slug='product-b',
+                        description='B',
+                        price=Decimal('20.00'),
+                        category=self.category,
+                )
+                self.product_c = Product.objects.create(
+                        name='Product C',
+                        slug='product-c',
+                        description='C',
+                        price=Decimal('30.00'),
+                        category=self.category,
+                )
+
+                # Three orders total, total_revenue = 100.00
+                order1 = Order.objects.create(total_price=Decimal('20.00'))
+                order2 = Order.objects.create(total_price=Decimal('30.00'))
+                order3 = Order.objects.create(total_price=Decimal('50.00'))
+
+                # Product A in 3 orders, Product B in 2, Product C in 1
+                OrderItem.objects.create(order=order1, product=self.product_a, quantity=1, price=Decimal('10.00'))
+                OrderItem.objects.create(order=order1, product=self.product_b, quantity=1, price=Decimal('20.00'))
+                OrderItem.objects.create(order=order2, product=self.product_a, quantity=1, price=Decimal('10.00'))
+                OrderItem.objects.create(order=order2, product=self.product_b, quantity=1, price=Decimal('20.00'))
+                OrderItem.objects.create(order=order3, product=self.product_a, quantity=1, price=Decimal('10.00'))
+                OrderItem.objects.create(order=order3, product=self.product_c, quantity=1, price=Decimal('30.00'))
+
+        def _graphql(self, query):
+                return self.client.post(
+                        '/graphql/',
+                        data={'query': query},
+                        content_type='application/json',
+                )
+
+        def test_graphql_total_orders_and_revenue(self):
+                query = '''
+                query {
+                    totalOrders
+                    totalRevenue
+                }
+                '''
+                response = self._graphql(query)
+                self.assertEqual(response.status_code, 200)
+                payload = response.json()
+                self.assertNotIn('errors', payload)
+                self.assertEqual(payload['data']['totalOrders'], 3)
+                self.assertEqual(payload['data']['totalRevenue'], 100.0)
+
+        def test_graphql_top_products(self):
+                query = '''
+                query {
+                    topProducts {
+                        name
+                        ordersCount
+                    }
+                }
+                '''
+                response = self._graphql(query)
+                self.assertEqual(response.status_code, 200)
+                payload = response.json()
+                self.assertNotIn('errors', payload)
+
+                top_products = payload['data']['topProducts']
+                self.assertGreaterEqual(len(top_products), 3)
+                self.assertEqual(top_products[0]['name'], 'Product A')
+                self.assertEqual(top_products[0]['ordersCount'], 3)
+                self.assertEqual(top_products[1]['name'], 'Product B')
+                self.assertEqual(top_products[1]['ordersCount'], 2)
+
+        def test_graphql_is_read_only_without_mutations(self):
+                mutation = '''
+                mutation {
+                    createOrder(totalPrice: 10) {
+                        id
+                    }
+                }
+                '''
+                response = self._graphql(mutation)
+                self.assertEqual(response.status_code, 400)
+                payload = response.json()
+                self.assertIn('errors', payload)
+
+
+class OrderCancelAPITests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='cancel-user', password='pass12345')
+        self.other_user = User.objects.create_user(username='other-cancel-user', password='pass12345')
+        self.order = Order.objects.create(
+            user=self.user,
+            status=Order.Status.PENDING,
+            total_price=Decimal('10.00'),
+        )
+
+    def test_owner_can_cancel_pending_order(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(f'/api/orders/{self.order.id}/cancel/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.order.refresh_from_db()
+        self.assertEqual(self.order.status, Order.Status.CANCELLED)
+
+    def test_cannot_cancel_non_pending_order(self):
+        self.order.status = Order.Status.PAID
+        self.order.save(update_fields=['status'])
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(f'/api/orders/{self.order.id}/cancel/')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_non_owner_cannot_cancel(self):
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.post(f'/api/orders/{self.order.id}/cancel/')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+class CartAPITests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.category = Category.objects.create(name='Cart Cat', slug='cart-cat')
+        self.product = Product.objects.create(
+            name='Cart API Product',
+            slug='cart-api-product',
+            description='Cart API',
+            price=Decimal('9.99'),
+            category=self.category,
+            stock=5,
+        )
+
+    def test_get_cart(self):
+        response = self.client.get('/api/cart/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('cart', response.data)
+
+    def test_add_item_to_cart(self):
+        response = self.client.post('/api/cart/', {'product_id': self.product.id, 'quantity': 2}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['cart'][str(self.product.id)], 2)
+
+    def test_update_cart_item_quantity(self):
+        self.client.post('/api/cart/', {'product_id': self.product.id, 'quantity': 1}, format='json')
+        response = self.client.patch('/api/cart/', {'product_id': self.product.id, 'quantity': 4}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['cart'][str(self.product.id)], 4)
+
+    def test_remove_item_from_cart(self):
+        self.client.post('/api/cart/', {'product_id': self.product.id, 'quantity': 1}, format='json')
+        response = self.client.delete('/api/cart/', {'product_id': self.product.id}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertNotIn(str(self.product.id), response.data['cart'])
+
+
+class ProductReviewsAPITests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='review-user', password='pass12345')
+        self.other_user = User.objects.create_user(username='review-other', password='pass12345')
+        self.category = Category.objects.create(name='Review Cat', slug='review-cat')
+        self.product = Product.objects.create(
+            name='Review Product',
+            slug='review-product',
+            description='Review API',
+            price=Decimal('12.00'),
+            category=self.category,
+            stock=10,
+        )
+
+    def test_get_reviews_paginated(self):
+        response = self.client.get(f'/api/products/{self.product.id}/reviews/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('results', response.data)
+
+    def test_authenticated_user_can_review_if_purchased(self):
+        order = Order.objects.create(user=self.user, total_price=Decimal('12.00'))
+        OrderItem.objects.create(order=order, product=self.product, quantity=1, price=Decimal('12.00'))
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(
+            f'/api/products/{self.product.id}/reviews/',
+            {'rating': 5, 'comment': 'Great product'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(Review.objects.filter(product=self.product, user=self.user).count(), 1)
+
+    def test_review_requires_purchase(self):
+        self.client.force_authenticate(user=self.other_user)
+        response = self.client.post(
+            f'/api/products/{self.product.id}/reviews/',
+            {'rating': 5, 'comment': 'No purchase'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_prevent_duplicate_review(self):
+        order = Order.objects.create(user=self.user, total_price=Decimal('12.00'))
+        OrderItem.objects.create(order=order, product=self.product, quantity=1, price=Decimal('12.00'))
+        Review.objects.create(product=self.product, user=self.user, rating=4, comment='First')
+
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post(
+            f'/api/products/{self.product.id}/reviews/',
+            {'rating': 5, 'comment': 'Second'},
+            format='json',
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
