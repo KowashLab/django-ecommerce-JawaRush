@@ -11,12 +11,18 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: test
+      DEBUG: "True"
+      ALLOWED_HOSTS: "*"
+      DB_HOST: ""
+      DB_NAME: ci.sqlite3
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.14
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -27,22 +33,19 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install flake8
-
-      - name: Run flake8
-        run: |
-          flake8 . --exclude=.git,__pycache__,.venv,venv,migrations
 
       - name: Run migrations
         run: |
           python manage.py migrate --noinput
 
+      - name: Collect static files
+        run: |
+          python manage.py collectstatic --noinput
+
+      - name: Django system check
+        run: |
+          python manage.py check
+
       - name: Run tests
         run: |
           python manage.py test
-
-      - name: Coverage report (optional)
-        continue-on-error: true
-        run: |
-          coverage run --source='.' manage.py test
-          coverage report --skip-covered

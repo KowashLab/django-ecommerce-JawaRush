@@ -27,11 +27,12 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-dev-key-change-in-producti
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = [
+_env_allowed_hosts = [
     host.strip()
     for host in os.getenv('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
     if host.strip()
 ]
+ALLOWED_HOSTS = list(dict.fromkeys(_env_allowed_hosts + ['localhost', '127.0.0.1', '*']))
 
 JAZZMIN_SETTINGS = {
     'site_title': 'Hop & Barley Admin',
@@ -97,13 +98,15 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+_db_host = os.getenv('DB_HOST', '').strip()
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql' if os.getenv('DB_HOST') else 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql' if _db_host else 'django.db.backends.sqlite3',
         'NAME': os.getenv('DB_NAME', BASE_DIR / 'db.sqlite3'),
         'USER': os.getenv('DB_USER', ''),
         'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', ''),
+        'HOST': _db_host,
         'PORT': os.getenv('DB_PORT', ''),
     }
 }
