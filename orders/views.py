@@ -46,6 +46,7 @@ def add_to_cart(request, product_id):
         cart[key] = new_qty
 
     request.session['cart'] = cart
+    messages.success(request, f'"{product.name}" added to cart.')
     return redirect(request.META.get('HTTP_REFERER', 'cart_detail'))
 
 

@@ -63,9 +63,12 @@
                         <p class="featured-card__desc">{{ product.description|truncatewords:12 }}</p>
                         <div class="featured-card__footer">
                             <span class="featured-card__price">${{ product.price }}</span>
-                            <a href="{% url 'add_to_cart' product.pk %}" class="featured-card__cart-btn">
-                                <i class="fa-solid fa-bag-shopping"></i> Add to cart
-                            </a>
+                            <form method="post" action="{% url 'add_to_cart' product.pk %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="featured-card__cart-btn">
+                                    <i class="fa-solid fa-bag-shopping"></i> Add to cart
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -164,9 +167,12 @@
                             <p class="product-card__price">${{ product.price }}</p>
                             <h4 class="product-card__name">{{ product.name }}</h4>
                             <p class="product-card__description">{{ product.description|truncatewords:8 }}</p>
-                            <a href="{% url 'add_to_cart' product.pk %}" class="product-card__add-btn">
-                                <i class="fa-solid fa-bag-shopping"></i> Add to cart
-                            </a>
+                            <form method="post" action="{% url 'add_to_cart' product.pk %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit" class="product-card__add-btn">
+                                    <i class="fa-solid fa-bag-shopping"></i> Add to cart
+                                </button>
+                            </form>
                         </div>
                     </div>
                     {% empty %}

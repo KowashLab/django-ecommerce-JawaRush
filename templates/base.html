@@ -43,8 +43,11 @@
       <a href="{% url 'account' %}" class="user-icon" aria-label="My Account">
         <img src="{% static 'img/icons/User_alt.svg' %}" alt="User Account">
       </a>
-      <a href="{% url 'cart_detail' %}" class="cart-icon" aria-label="Shopping Cart">
+      <a href="{% url 'cart_detail' %}" class="cart-icon cart-icon--badge" aria-label="Shopping Cart">
         <img src="{% static 'img/icons/Shopping_bag.svg' %}" alt="Shopping Cart">
+        {% with cart_count=request.session.cart|length %}
+        {% if cart_count %}<span class="cart-badge">{{ cart_count }}</span>{% endif %}
+        {% endwith %}
       </a>
     </div>
     {% else %}
@@ -57,6 +60,22 @@
 </header>
 
 <main class="{% block main_class %}{% endblock %}">
+  {% if messages %}
+  <div class="messages-container" id="messages-container">
+    {% for message in messages %}
+    <div class="message-toast message-toast--{{ message.tags }}" role="alert">
+      <span class="message-toast__icon">
+        {% if 'success' in message.tags %}<i class="fa-solid fa-circle-check"></i>
+        {% elif 'error' in message.tags %}<i class="fa-solid fa-circle-xmark"></i>
+        {% elif 'warning' in message.tags %}<i class="fa-solid fa-triangle-exclamation"></i>
+        {% else %}<i class="fa-solid fa-circle-info"></i>{% endif %}
+      </span>
+      <span class="message-toast__text">{{ message }}</span>
+      <button class="message-toast__close" aria-label="Dismiss"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
   {% block content %}{% endblock %}
 </main>
 

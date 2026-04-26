@@ -234,4 +234,20 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = card.dataset.href;
         });
     });
+
+    // --- Toast messages: auto-dismiss and close button ---
+    function dismissToast(toast) {
+        toast.classList.add('fade-out');
+        toast.addEventListener('animationend', function() { toast.remove(); }, { once: true });
+    }
+
+    document.querySelectorAll('.message-toast').forEach(function(toast) {
+        // Close button
+        const closeBtn = toast.querySelector('.message-toast__close');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() { dismissToast(toast); });
+        }
+        // Auto-dismiss after 4 seconds
+        setTimeout(function() { dismissToast(toast); }, 4000);
+    });
 });

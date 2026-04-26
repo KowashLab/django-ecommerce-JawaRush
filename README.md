@@ -30,9 +30,25 @@ Includes:
 docker compose up --build
 docker compose exec web python manage.py migrate
 docker compose exec web python manage.py seed_products
+docker compose exec web python manage.py seed_reviews
+docker compose exec web python manage.py seed_users
+docker compose exec web python manage.py seed_orders
 ```
 
-App: http://localhost:8000
+This will populate the database with demo products, users, reviews, and orders.
+
+App will be available at: http://localhost:8000
+
+---
+
+## Project Entry Points
+
+| URL | Description |
+|-----|-------------|
+| http://localhost:8000 | Web app |
+| http://localhost:8000/admin/ | Admin panel |
+| http://localhost:8000/api/docs/ | API docs (Swagger) |
+| http://localhost:8000/graphql/ | GraphQL |
 
 ---
 
@@ -42,6 +58,15 @@ Obtain token:
 
 ```bash
 POST /api/token/
+```
+
+Example request body:
+
+```json
+{
+  "username": "user1",
+  "password": "password123"
+}
 ```
 
 Refresh token:
@@ -113,6 +138,12 @@ Run tests:
 python manage.py test
 ```
 
+Or inside Docker:
+
+```bash
+docker compose exec web python manage.py test
+```
+
 Coverage:
 
 ```bash
@@ -150,12 +181,27 @@ Coverage: **90%+**
 * Reviews allowed only after purchase
 * Cart stored in session
 * GraphQL used for analytics only (read-only)
+* Cart updates dynamically with a badge in the header
+* Toast notifications appear after adding items to cart
+* Orders are pre-populated for demo users
 
 ---
 
 ## License
 
 Educational project
+
+---
+
+## Demo Accounts
+
+| Role  | Username | Password     |
+|-------|----------|--------------|
+| Admin | admin    | Admin1234@789     |
+| User  | user1    | password123  |
+| User  | user2    | password123  |
+
+> Access the admin panel at [http://localhost:8000/admin/](http://localhost:8000/admin/)
 
 ---
 

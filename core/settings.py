@@ -37,7 +37,42 @@ ALLOWED_HOSTS = list(dict.fromkeys(_env_allowed_hosts + ['localhost', '127.0.0.1
 JAZZMIN_SETTINGS = {
     'site_title': 'Hop & Barley Admin',
     'site_header': 'Hop & Barley',
+    'site_brand': 'Admin Panel',
     'welcome_sign': 'Welcome to Hop & Barley Admin',
+    'copyright': 'Hop & Barley',
+    'search_model': ['products.Product', 'orders.Order', 'reviews.Review'],
+    'order_with_respect_to': ['orders', 'products', 'reviews', 'users'],
+    'icons': {
+        'products.product': 'fas fa-box',
+        'products.category': 'fas fa-tags',
+        'orders.order': 'fas fa-shopping-cart',
+        'reviews.review': 'fas fa-star',
+        'users.address': 'fas fa-map-marker-alt',
+        'auth.user': 'fas fa-user',
+    },
+    'default_icon_parents': 'fas fa-folder',
+    'default_icon_children': 'fas fa-circle',
+    'related_modal_active': True,
+    'show_ui_builder': False,
+}
+
+JAZZMIN_UI_TWEAKS = {
+    'theme': 'flatly',
+    'navbar_small_text': False,
+    'footer_small_text': False,
+    'body_small_text': False,
+    'brand_small_text': False,
+    'brand_colour': 'navbar-success',
+    'accent': 'accent-teal',
+    'navbar': 'navbar-dark',
+    'no_navbar_border': False,
+    'sidebar': 'sidebar-dark-success',
+    'sidebar_nav_small_text': False,
+    'sidebar_disable_expand': False,
+    'sidebar_nav_child_indent': True,
+    'sidebar_nav_compact_style': False,
+    'sidebar_nav_legacy_style': False,
+    'sidebar_nav_flat_style': False,
 }
 
 
