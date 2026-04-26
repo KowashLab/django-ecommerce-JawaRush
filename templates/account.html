@@ -71,29 +71,67 @@
       <!-- Account Information Panel -->
       <div id="account-info" class="tab-pane">
         <div class="account-form-container">
-          <h2 class="account-form-title">Personal Info</h2>
-          <form id="account-info-form">
+          <h2 class="account-form-title">Saved Addresses</h2>
+
+          {% if messages %}
+            {% for message in messages %}
+            <p class="review-message review-message--{{ message.tags }}">{{ message }}</p>
+            {% endfor %}
+          {% endif %}
+
+          <div class="checkout-form-group">
+            {% for address in addresses %}
+            <div class="order-table-row" style="margin-bottom: 12px;">
+              <div>
+                <strong>{{ address.full_name }}</strong> — {{ address.phone }}<br>
+                {{ address.city }}, {{ address.address_line }}, {{ address.postal_code }}
+                {% if address.is_default %}
+                  <span class="order-status" style="margin-left: 8px;">Default</span>
+                {% endif %}
+              </div>
+              {% if not address.is_default %}
+              <form method="post" action="{% url 'account' %}" style="margin-top: 8px;">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="set_default">
+                <input type="hidden" name="address_id" value="{{ address.id }}">
+                <button type="submit" class="button button--secondary">Set as default</button>
+              </form>
+              {% endif %}
+            </div>
+            {% empty %}
+            <p>No saved addresses yet.</p>
+            {% endfor %}
+          </div>
+
+          <h3 class="account-form-title">Add New Address</h3>
+          <form id="account-info-form" method="post" action="{% url 'account' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_address">
             <div class="checkout-form-group">
-              <label for="acc-full-name">Full Name</label>
-              <input type="text" id="acc-full-name" name="full_name" class="Input" placeholder="Value" required>
+              <label for="id_full_name">Full Name</label>
+              {{ address_form.full_name }}
             </div>
             <div class="checkout-form-group">
-              <label for="acc-phone">Phone number</label>
-              <input type="tel" id="acc-phone" name="phone" class="Input" placeholder="Value" required>
+              <label for="id_phone">Phone number</label>
+              {{ address_form.phone }}
             </div>
             <div class="checkout-form-group">
-              <label for="acc-email">Email</label>
-              <input type="email" id="acc-email" name="email" class="Input" placeholder="example@mail.com" required>
+              <label for="id_city">City</label>
+              {{ address_form.city }}
             </div>
             <div class="checkout-form-group">
-              <label for="acc-city">City</label>
-              <input type="text" id="acc-city" name="city" class="Input" placeholder="Value" required>
+              <label for="id_address_line">Address line</label>
+              {{ address_form.address_line }}
             </div>
             <div class="checkout-form-group">
-              <label for="acc-address">Shipping address</label>
-              <textarea id="acc-address" name="address" class="Textarea" placeholder="Value" rows="3" required></textarea>
+              <label for="id_postal_code">Postal code</label>
+              {{ address_form.postal_code }}
             </div>
-            <button type="submit" class="button button--primary button--full-width">Save</button>
+            <div class="checkout-form-group">
+              <label for="id_is_default">Set as default</label>
+              {{ address_form.is_default }}
+            </div>
+            <button type="submit" class="button button--primary button--full-width">Add Address</button>
           </form>
           <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit" class="button button--secondary button--full-width" id="logout-button">Logout</button></form>
         </div>

@@ -123,6 +123,13 @@
                         {% endfor %}
                     </div>
                 </div>
+                <div class="sidebar__section">
+                    <h3 class="section-title">Price Range</h3>
+                    <div class="price-range-group">
+                        <input type="number" step="0.01" min="0" name="min_price" value="{{ current_min_price }}" placeholder="Min price" class="search-input">
+                        <input type="number" step="0.01" min="0" name="max_price" value="{{ current_max_price }}" placeholder="Max price" class="search-input">
+                    </div>
+                </div>
                 <button type="submit" class="button button--primary button--full-width">Apply Filters</button>
             </aside>
 
@@ -135,11 +142,11 @@
                         </button>
                     </div>
                     <div class="sort-options">
-                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=newest" class="sort-button{% if current_sort == 'newest' %} active-sort{% endif %}">
+                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}{% if current_min_price %}min_price={{ current_min_price }}&{% endif %}{% if current_max_price %}max_price={{ current_max_price }}&{% endif %}sort=newest" class="sort-button{% if current_sort == 'newest' %} active-sort{% endif %}">
                             <span>New</span>
                         </a>
-                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_asc" class="sort-button{% if current_sort == 'price_asc' %} active-sort{% endif %}">Price ascending</a>
-                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}sort=price_desc" class="sort-button{% if current_sort == 'price_desc' %} active-sort{% endif %}">Price descending</a>
+                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}{% if current_min_price %}min_price={{ current_min_price }}&{% endif %}{% if current_max_price %}max_price={{ current_max_price }}&{% endif %}sort=price_asc" class="sort-button{% if current_sort == 'price_asc' %} active-sort{% endif %}">Price ascending</a>
+                        <a href="?{% for c in selected_categories %}category={{ c }}&{% endfor %}{% if current_q %}q={{ current_q }}&{% endif %}{% if current_min_price %}min_price={{ current_min_price }}&{% endif %}{% if current_max_price %}max_price={{ current_max_price }}&{% endif %}sort=price_desc" class="sort-button{% if current_sort == 'price_desc' %} active-sort{% endif %}">Price descending</a>
                     </div>
                 </div>
 
@@ -174,7 +181,7 @@
                 {% if is_paginated %}
                 <div class="pagination">
                     {% if page_obj.has_previous %}
-                    <a href="?page={{ page_obj.previous_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--prev">
+                    <a href="?page={{ page_obj.previous_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_min_price %}&min_price={{ current_min_price }}{% endif %}{% if current_max_price %}&max_price={{ current_max_price }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--prev">
                         <i class="fa-solid fa-arrow-left"></i>
                         <span>Previous</span>
                     </a>
@@ -182,18 +189,18 @@
                     <div class="pagination-list">
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
-                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link active">{{ num }}</a>
+                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_min_price %}&min_price={{ current_min_price }}{% endif %}{% if current_max_price %}&max_price={{ current_max_price }}{% endif %}&sort={{ current_sort }}" class="pagination__link active">{{ num }}</a>
                             {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
-                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
+                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_min_price %}&min_price={{ current_min_price }}{% endif %}{% if current_max_price %}&max_price={{ current_max_price }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
                             {% elif num == 1 or num == page_obj.paginator.num_pages %}
-                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
+                            <a href="?page={{ num }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_min_price %}&min_price={{ current_min_price }}{% endif %}{% if current_max_price %}&max_price={{ current_max_price }}{% endif %}&sort={{ current_sort }}" class="pagination__link">{{ num }}</a>
                             {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
                             <span class="pagination__dots">...</span>
                             {% endif %}
                         {% endfor %}
                     </div>
                     {% if page_obj.has_next %}
-                    <a href="?page={{ page_obj.next_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--next">
+                    <a href="?page={{ page_obj.next_page_number }}{% for c in selected_categories %}&category={{ c }}{% endfor %}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_min_price %}&min_price={{ current_min_price }}{% endif %}{% if current_max_price %}&max_price={{ current_max_price }}{% endif %}&sort={{ current_sort }}" class="pagination__link pagination__link--next">
                         <span>Next</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </a>

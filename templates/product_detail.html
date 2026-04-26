@@ -42,6 +42,13 @@
         <!-- Reviews Section -->
         <section class="reviews-section">
             <h2 class="reviews-title">Latest reviews</h2>
+            {% if messages %}
+            <div class="reviews-messages">
+                {% for message in messages %}
+                <p class="review-message review-message--{{ message.tags }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
             <div class="reviews-grid">
                 {% for review in product.reviews.all %}
                 <div class="review-card">

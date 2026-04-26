@@ -15,6 +15,26 @@
             <section class="checkout-section">
                 <h2 class="checkout-section__title">Shipping information</h2>
 
+                {% if form.non_field_errors %}
+                <ul class="form-errors">
+                    {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+                </ul>
+                {% endif %}
+
+                {% if saved_addresses %}
+                <div class="checkout-form-group">
+                    <label for="id_address_id">Choose saved address</label>
+                    <select id="id_address_id" name="address_id" class="Input">
+                        {% for address in saved_addresses %}
+                        <option value="{{ address.id }}" {% if selected_address_id == address.id|stringformat:"s" %}selected{% endif %}>
+                            {{ address.full_name }} — {{ address.city }}, {{ address.address_line }}, {{ address.postal_code }}
+                            {% if address.is_default %}(Default){% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% else %}
+
                 <div class="checkout-form-group">
                     <label for="id_full_name">Full Name</label>
                     {{ form.full_name }}
@@ -44,6 +64,7 @@
                     </ul>
                     {% endif %}
                 </div>
+                {% endif %}
 
                 <div class="checkout-form-group">
                     <label>Payment method</label>
